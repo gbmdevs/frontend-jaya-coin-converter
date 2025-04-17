@@ -36,29 +36,20 @@ jobs:
           name: dist
           path: dist/
           retention-days: 1
-
   deploy:
     runs-on: ubuntu-latest
-    needs: build  
+    needs: build
+    environment: production
     steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: dist
-        path: dist/      
-    - name: Initialize Git repository
-      run: |
-        cd dist
-        git init
-        git config user.name "Heroku-Deploy"
-        git config user.email "deploy@heroku.com"
-        git add .
-        git commit -m "Prepare dist for Heroku deployment"    
-    - name: Deploy para o Heroku - Front-end
-      uses: akhileshns/heroku-deploy@v3.13.15
-      with:
-        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-        heroku_email: ${{ secrets.HEROKU_EMAIL }}
-        appdir: dist
-        procfile: 'web: npm run serve'      
+       - name: Checkout code
+         uses: actions/checkout@v4
+       - name: Install Heroku CLI
+         run: |
+           curl https://cli-assets.heroku.com/install.sh | sh
+           heroku --version
+       - name: Deploy to Heroku
+         env:
+           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+         run: |
+            git fetch --all --unshallow
+            git push https://_:${HEROKU_API_KEY}@git.heroku.com/frontend-jaya-coin-converter.git main    
