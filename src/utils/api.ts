@@ -1,9 +1,10 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError,AxiosResponse } from 'axios';
 
 interface ApiResponse<T = unknown> {
   data: T;
   status: number;
   statusText: string;
+  token: string;
 }
 
 const API: AxiosInstance = axios.create({
@@ -27,14 +28,18 @@ const API: AxiosInstance = axios.create({
   );
 
   API.interceptors.request.use(
-    (config: AxiosRequestConfig) => {
+    (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+      // Add custom headers or token if needed
+      // Example: Add Authorization header
       const token = localStorage.getItem('token');
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    (error: AxiosError): Promise<AxiosError> => {
+      return Promise.reject(error);
+    }
   );
 
   export const get = async <T = unknown>(url: string): Promise<T> => {

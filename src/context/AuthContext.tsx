@@ -14,8 +14,7 @@ interface LoginResponse {
 interface AuthContextType {
     isAuthenticated: boolean;
     user: User | null;
-    login: (email: string, password: string) => void;
-    signup: (email: string, password: string) => void;
+    login: (email: string, password: string) => void; 
     logout: () => void;
 }
 
@@ -49,14 +48,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
 
-  const signup = (email: string, password: string) => {
+  /*const signup = (email: string, password: string) => {
     // In a real app, you would create an account in the backend
     setIsAuthenticated(true);
     setUser({
       email,
       isAdmin: false
     });
-  };
+  };*/
 
   const logout = () => {
     setIsAuthenticated(false);
@@ -64,7 +63,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

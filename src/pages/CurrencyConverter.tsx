@@ -10,13 +10,6 @@ interface CurrencyType {
   currency: string; // e.g., "USD", "EUR"
 }
 
-// Interface for client-side currency (with symbol and flag)
-interface Currency {
-  code: string;
-  symbol: string;
-  flag: string;
-}
-
 // Client-side mapping for symbols and flags
 const currencyMetaData: Record<string, { symbol: string; flag: string }> = {
   EUR: { symbol: '€', flag: 'https://flagcdn.com/w40/eu.png' },
@@ -109,8 +102,7 @@ const CurrencyConverter = () => {
   const [toCurrency, setToCurrency] = useState('USD');
   const [result, setResult] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [fetchLoading, setFetchLoading] = useState(false);
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [fetchLoading, setFetchLoading] = useState(false); 
   const [currencyTypes, setCurrencyTypes] = useState<CurrencyType[]>([]);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
@@ -165,8 +157,8 @@ const CurrencyConverter = () => {
           setFromCurrency(data[0].name);
           setToCurrency(data[1]?.name || data[0].name);
         }*/
-      } catch (error) {
-        setFetchError(error.message || 'Failed to fetch currency types');
+
+      } catch (error) { 
         console.error('Fetch currency types failed:', error);
       } finally {
         setFetchLoading(false);
@@ -223,7 +215,7 @@ const CurrencyConverter = () => {
             Currency Converter
           </h1>
           {fetchLoading && <p className="text-center">Loading currencies...</p>}
-          {fetchError && <p className="text-center text-red-500">Error: {fetchError}</p>}
+          {/*fetchError && <p className="text-center text-red-500">Error: {fetchError}</p>*/}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div>
