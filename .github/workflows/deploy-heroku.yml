@@ -39,25 +39,38 @@ jobs:
           path: dist/
           retention-days: 1
   deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment: production
-    steps:
-       - name: Checkout code
-         uses: actions/checkout@v4
-       - name: Install Heroku CLI
-         run: |
-           curl https://cli-assets.heroku.com/install.sh | sh
-           heroku --version
-       - name: Deploy to Heroku
-         env:
-           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-           HEROKU_APP_NAME: frontend-jaya-coin-converter
-         run: |
-          echo "Logging in to Heroku..."
-          heroku auth:whoami || echo "${HEROKU_API_KEY}" | heroku login
-          echo "Deploying to Heroku app: ${HEROKU_APP_NAME}"
-          heroku git:remote -a ${HEROKU_APP_NAME}
-          git add dist -f
-          git commit -m "Deploy built assets" || echo "No changes to commit"
-          git push heroku main --force  
+        runs-on: ubuntu-latest
+        needs: build
+        environment: production
+        steps: 
+         - name: Checkout code
+           uses: actions/checkout@v4
+           with:
+             fetch-depth: 0
+ 
+         - name: Download artifact
+           uses: actions/download-artifact@v4
+           with:
+             name: dist
+             path: dist/
+ 
+         - name: Install Heroku CLI
+           run: |
+              curl https://cli-assets.heroku.com/install.sh | sh
+              heroku --version
+ 
+         - name: Deploy to Heroku
+           env:
+              HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+              HEROKU_APP_NAME: frontend-jaya-coin-converter
+           run: |
+            echo "Logging in to Heroku..."
+            heroku auth:whoami || echo "${HEROKU_API_KEY}" | heroku login
+            echo "Deploying to Heroku app: ${HEROKU_APP_NAME}" 
+            git remote add heroku https://:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git || git remote set-url heroku https://:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git
+            git config --global user.email "github-actions@users.noreply.github.com"
+            git config --global user.name "GitHub Actions"
+            git checkout main || git checkout -b main
+            git add dist -f
+            git commit -m "Deploy built assets" || echo "No changes to commit"
+            git push heroku main --force
