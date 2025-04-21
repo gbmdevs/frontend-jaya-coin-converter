@@ -55,9 +55,9 @@ jobs:
            HEROKU_APP_NAME: frontend-jaya-coin-converter
          run: |
           echo "Logging in to Heroku..."
-          echo "${HEROKU_API_KEY}" | heroku login --api-key
+          heroku auth:whoami || echo "${HEROKU_API_KEY}" | heroku login
           echo "Deploying to Heroku app: ${HEROKU_APP_NAME}"
           heroku git:remote -a ${HEROKU_APP_NAME}
           git add dist -f
-          git commit -m "Deploy built assets"
-          git push heroku main --force   
+          git commit -m "Deploy built assets" || echo "No changes to commit"
+          git push heroku main --force  
