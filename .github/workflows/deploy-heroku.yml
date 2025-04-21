@@ -28,6 +28,8 @@ jobs:
         run: npm ci
 
       - name: Build the project
+        env:
+            VITE_API_URL_BACK: ${{ secrets.VITE_API_URL_BACK }}
         run: npm run build
 
       - name: Upload artifact
@@ -50,6 +52,12 @@ jobs:
        - name: Deploy to Heroku
          env:
            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+           HEROKU_APP_NAME: frontend-jaya-coin-converter
          run: |
-            git fetch --all --unshallow
-            git push https://_:${HEROKU_API_KEY}@git.heroku.com/frontend-jaya-coin-converter.git main    
+          echo "Logging in to Heroku..."
+          echo "${HEROKU_API_KEY}" | heroku login --api-key
+          echo "Deploying to Heroku app: ${HEROKU_APP_NAME}"
+          heroku git:remote -a ${HEROKU_APP_NAME}
+          git add dist -f
+          git commit -m "Deploy built assets"
+          git push heroku main --force   
