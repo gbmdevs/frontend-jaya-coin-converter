@@ -8,7 +8,7 @@ interface ApiResponse<T = unknown> {
 }
 
 const API: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL_BACK_END || 'http://localhost:3000', // Fallback for dev
+    baseURL: import.meta.env.VITE_API_URL_BACK_END,
     headers: {
       'Content-Type': 'application/json',
     },

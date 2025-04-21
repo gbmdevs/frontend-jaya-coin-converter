@@ -29,7 +29,7 @@ jobs:
 
       - name: Build the project
         env:
-            VITE_API_URL_BACK_END: ${{ secrets.VITE_API_URL_BACK }}
+            VITE_API_URL_BACK_END: ${{ secrets.VITE_API_URL_BACK_END }}
         run: npm run build
 
       - name: Upload artifact

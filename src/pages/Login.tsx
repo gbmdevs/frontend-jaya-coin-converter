@@ -11,7 +11,7 @@ const Login = () => {
 
     const handleSubmit = async (e: React.FormEvent) => { 
         e.preventDefault(); 
-        login(email,password);
+        await login(email,password);
         navigate("/converter")
       };
 
