@@ -68,6 +68,7 @@ jobs:
             git remote add heroku https://:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git || git remote set-url heroku https://:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git
             git config --global user.email "github-actions@users.noreply.github.com"
             git config --global user.name "GitHub Actions"
+            git fetch --all --unshallow
             git checkout main || git checkout -b main
             git add dist -f
             git commit -m "Deploy built assets" || echo "No changes to commit"
