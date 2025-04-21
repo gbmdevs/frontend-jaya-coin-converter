@@ -12,7 +12,7 @@ function App() {
                <Route path="/login" element={<Login />} />
                <Route path="/converter"
                  element={
-                   <ProtectedRoute>
+                  <ProtectedRoute>
                        <CurrencyConverter />
                   </ProtectedRoute>
                 }

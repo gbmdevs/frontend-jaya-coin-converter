@@ -2,49 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { RefreshCw, LogOut, ShieldCheck } from 'lucide-react';
-import { get } from '../utils/api';
+import { get, postData } from '../utils/api';
+ 
 
-// Interface for backend CurrencyType
+interface Currency {
+  code: string;
+  symbol: string;
+  flag: string;
+}
+
 interface CurrencyType {
   id: string;
-  currency: string; // e.g., "USD", "EUR"
+  currency: string;  
+  country: string;
+  symbol: string;
 }
 
-// Client-side mapping for symbols and flags
-const currencyMetaData: Record<string, { symbol: string; flag: string }> = {
-  EUR: { symbol: '€', flag: 'https://flagcdn.com/w40/eu.png' },
-  USD: { symbol: '$', flag: 'https://flagcdn.com/w40/us.png' },
-  BRL: { symbol: 'R$', flag: 'https://flagcdn.com/w40/br.png' },
-  GBP: { symbol: '£', flag: 'https://flagcdn.com/w40/gb.png' },
-  JPY: { symbol: '¥', flag: 'https://flagcdn.com/w40/jp.png' },
-  CAD: { symbol: 'C$', flag: 'https://flagcdn.com/w40/ca.png' },
-  AUD: { symbol: 'A$', flag: 'https://flagcdn.com/w40/au.png' },
-  CHF: { symbol: 'Fr', flag: 'https://flagcdn.com/w40/ch.png' },
-};
+const currencies: Currency[] = [
+  { code: 'EUR', symbol: '€', flag: 'https://flagcdn.com/w40/eu.png' },
+  { code: 'USD', symbol: '$', flag: 'https://flagcdn.com/w40/us.png' },
+  { code: 'BRL', symbol: 'R$', flag: 'https://flagcdn.com/w40/br.png' },
+  { code: 'GBP', symbol: '£', flag: 'https://flagcdn.com/w40/gb.png' },
+  { code: 'JPY', symbol: '¥', flag: 'https://flagcdn.com/w40/jp.png' },
+  { code: 'CAD', symbol: 'C$', flag: 'https://flagcdn.com/w40/ca.png' },
+  { code: 'AUD', symbol: 'A$', flag: 'https://flagcdn.com/w40/au.png' },
+  { code: 'CHF', symbol: 'Fr', flag: 'https://flagcdn.com/w40/ch.png' },
+];
 
-interface ConversionHistory {
-  id: string;
-  userId: string;
-  fromCurrency: string;
-  toCurrency: string;
-  amount: string;
-  result: number;
-  timestamp: Date;
+interface ConversionSearch {
+  transcationId: string; 
+  valueOrigin: number 
 }
 
-// Updated CurrencySelect component
 const CurrencySelect: React.FC<{
   value: string;
   onChange: (value: string) => void;
   label: string;
   currencyTypes: CurrencyType[];
-}> = ({ value, onChange, label, currencyTypes }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Find the selected currency's metadata
-  console.log(currencyTypes)
-  const selectedCurrency = currencyTypes.find((c) => c.currency === value);
-  const selectedMeta = selectedCurrency ? currencyMetaData[value] : null;
+}> = ({ value, onChange, label, currencyTypes  }) => {
+  const [isOpen, setIsOpen] = useState(false); 
+  const selectedCurrency = currencyTypes.find(c => c.currency === value);
 
   return (
     <div className="relative">
@@ -54,42 +51,34 @@ const CurrencySelect: React.FC<{
         className="w-full px-4 py-3 pl-12 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent text-left relative bg-white"
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          backgroundImage: `url(${selectedMeta?.flag})`,
+          backgroundImage: `url(/assets/flags/${selectedCurrency?.currency}.png)`,
           backgroundPosition: '8px center',
           backgroundRepeat: 'no-repeat',
-          backgroundSize: '24px',
+          backgroundSize: '24px'
         }}
       >
-        {selectedCurrency?.currency || 'Select'} - {selectedMeta?.symbol || ''}
+        {selectedCurrency?.currency} -  {selectedCurrency?.symbol} 
       </button>
       {isOpen && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-          {currencyTypes.map((currency) => {
-            const meta = currencyMetaData[currency.currency] || {
-              symbol: '',
-              flag: '',
-            };
-            return (
-              <button
-                key={currency.id}
-                type="button"
-                className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-3"
-                onClick={() => {
-                  onChange(currency.currency);
-                  setIsOpen(false);
-                }}
-              >
-                <img
-                  src={meta.flag || 'https://flagcdn.com/w40/xx.png'} // Fallback flag
-                  alt={currency.currency}
-                  className="w-6 h-4 object-cover"
-                />
-                <span>
-                  {currency.currency} - {meta.symbol || ''}
-                </span>
-              </button>
-            );
-          })}
+          {currencyTypes.map((currency) => (
+            <button
+              key={currency.currency}
+              type="button"
+              className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center space-x-3"
+              onClick={() => {
+                onChange(currency.currency);
+                setIsOpen(false);
+              }}
+            >
+              {<img
+                src={`/assets/flags/${currency.currency}.png`}
+                alt={currency.currency}
+                className="w-6 h-4 object-cover"
+              />}
+              <span>{currency.currency} - {currency.symbol}</span>
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -99,11 +88,10 @@ const CurrencySelect: React.FC<{
 const CurrencyConverter = () => {
   const [amount, setAmount] = useState('1');
   const [fromCurrency, setFromCurrency] = useState('EUR');
-  const [toCurrency, setToCurrency] = useState('USD');
-  const [result, setResult] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [fetchLoading, setFetchLoading] = useState(false); 
+  const [toCurrency, setToCurrency] = useState('USD'); 
+  const [loading, setLoading] = useState(false); 
   const [currencyTypes, setCurrencyTypes] = useState<CurrencyType[]>([]);
+  const [currentConversion,setCurrentConversion] = useState<ConversionSearch>();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
@@ -113,12 +101,26 @@ const CurrencyConverter = () => {
   };
 
   const getSymbol = (code: string) => {
-    return currencyMetaData[code]?.symbol || '';
+    return currencies.find(c => c.code === code)?.symbol || '';
   };
 
   const convertCurrency = async () => {
     setLoading(true);
     try {
+      const convertResponse = await postData<ConversionSearch>('/currency/search',{
+        currencyOrigin: fromCurrency,
+        currencyDestiny: toCurrency,
+        amount: amount
+      });
+    
+      const conversion: ConversionSearch = {
+        transcationId: convertResponse.transcationId,
+        valueOrigin: convertResponse.valueOrigin
+      }
+
+      setCurrentConversion(conversion)
+      /*
+      
       const response = await fetch(
         `https://api.exchangerate-api.com/v4/latest/${fromCurrency}`
       );
@@ -138,51 +140,37 @@ const CurrencyConverter = () => {
       };
 
       const existingHistory = JSON.parse(localStorage.getItem('conversionHistory') || '[]');
-      localStorage.setItem('conversionHistory', JSON.stringify([history, ...existingHistory]));
+      localStorage.setItem('conversionHistory', JSON.stringify([history, ...existingHistory]));*/
     } catch (error) {
       console.error('Error fetching exchange rate:', error);
     }
     setLoading(false);
   };
 
-  // Fetch currency types
+  useEffect(() => { 
+  }, [fromCurrency, toCurrency, amount]);
+
   useEffect(() => {
-    const fetchCurrencyTypes = async () => {
-      setFetchLoading(true);
+    const fetchCurrencyTypes = async () => { 
       try {
         const data = await get<CurrencyType[]>('/currency/types');
-        setCurrencyTypes(data);
-        // Set default currencies if data is available
-        /*if (data.length > 0) {
-          setFromCurrency(data[0].name);
-          setToCurrency(data[1]?.name || data[0].name);
-        }*/
-
-      } catch (error) { 
+        console.log("Retorno API"+data)
+        setCurrencyTypes(data); 
+        if(data.length > 0){
+          setFromCurrency(data[0].currency);
+        }
+      } catch (error) {
         console.error('Fetch currency types failed:', error);
-      } finally {
-        setFetchLoading(false);
+      } finally { 
       }
     };
     fetchCurrencyTypes();
   }, []);
-
-  // Trigger conversion when inputs change
+ 
   useEffect(() => {
-    if (fromCurrency && toCurrency && amount && currencyTypes.length > 0) {
-      convertCurrency();
-    }
-  }, [fromCurrency, toCurrency, amount, currencyTypes]);
-
-  // Handle click outside to close dropdowns
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.currency-select')) {
-        setCurrencyTypes((prev) =>
-          prev.map((c) => ({ ...c, isOpen: false }))
-        );
-      }
+    const handleClickOutside = () => {
+      const selects = document.querySelectorAll('.currency-select');
+      selects.forEach(select => select.classList.remove('open'));
     };
 
     document.addEventListener('click', handleClickOutside);
@@ -212,10 +200,8 @@ const CurrencyConverter = () => {
         </div>
         <div className="bg-white rounded-xl shadow-2xl p-8">
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-            Currency Converter
+            Currency Converter - Jaya
           </h1>
-          {fetchLoading && <p className="text-center">Loading currencies...</p>}
-          {/*fetchError && <p className="text-center text-red-500">Error: {fetchError}</p>*/}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div>
@@ -246,23 +232,32 @@ const CurrencyConverter = () => {
                 label="To"
                 currencyTypes={currencyTypes}
               />
+              <button
+                onClick={convertCurrency}
+                className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition duration-200 flex items-center justify-center gap-2"
+                disabled={loading}
+              >
+                {loading ? (
+                  <RefreshCw className="h-5 w-5 animate-spin" />
+                ) : (
+                  'Converter'
+                )}
+              </button>
             </div>
+
             <div className="flex items-center justify-center">
               <div className="text-center">
-                <div className="text-6xl font-bold text-gray-800 mb  mb-4">
+                <div className="text-6xl font-bold text-gray-800 mb-4">
                   {loading ? (
                     <RefreshCw className="h-16 w-16 animate-spin text-green-500 mx-auto" />
                   ) : (
                     <span>
-                      {getSymbol(toCurrency)}
-                      {result?.toFixed(2)}
+                       {getSymbol(toCurrency)}
                     </span>
                   )}
                 </div>
                 <p className="text-xl text-gray-600">
-                  {getSymbol(fromCurrency)}
-                  {amount} {fromCurrency} = {getSymbol(toCurrency)}
-                  {result?.toFixed(2)} {toCurrency}
+                   {getSymbol(fromCurrency)} {currentConversion?.valueOrigin} = {getSymbol(toCurrency)} {toCurrency} 
                 </p>
               </div>
             </div>
