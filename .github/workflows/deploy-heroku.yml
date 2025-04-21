@@ -3,7 +3,7 @@ name: CI/CD para o Front-end(React + Vite) - Jaya Coin Converter
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   checkout:
