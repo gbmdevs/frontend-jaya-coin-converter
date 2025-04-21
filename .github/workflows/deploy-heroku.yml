@@ -38,26 +38,38 @@ jobs:
           name: dist
           path: dist/
           retention-days: 1
-  deploy:
+deploy:
     runs-on: ubuntu-latest
     needs: build
     environment: production
     steps:
-       - name: Checkout code
-         uses: actions/checkout@v4
-       - name: Install Heroku CLI
-         run: |
-           curl https://cli-assets.heroku.com/install.sh | sh
-           heroku --version
-       - name: Deploy to Heroku
-         env:
-           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-           HEROKU_APP_NAME: frontend-jaya-coin-converter
-         run: |
+      # Checkout the code (needed for static.json or other config files)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Download the dist folder artifact
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      # Install Heroku CLI
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+          heroku --version
+
+      # Deploy to Heroku
+      - name: Deploy to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP_NAME: frontend-jaya-coin-converter
+        run: |
           echo "Logging in to Heroku..."
           heroku auth:whoami || echo "${HEROKU_API_KEY}" | heroku login
           echo "Deploying to Heroku app: ${HEROKU_APP_NAME}"
           heroku git:remote -a ${HEROKU_APP_NAME}
           git add dist -f
           git commit -m "Deploy built assets" || echo "No changes to commit"
-          git push heroku main --force  
+          git push heroku main --force
