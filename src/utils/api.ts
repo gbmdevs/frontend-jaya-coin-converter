@@ -1,10 +1,10 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError,AxiosResponse } from 'axios';
 
-interface ApiResponse<T = unknown> {
-  data: T;
+interface ApiResponse<T = unknown> { 
   status: number;
   statusText: string;
   token: string;
+  data: T
 }
 
 const API: AxiosInstance = axios.create({
@@ -18,7 +18,7 @@ const API: AxiosInstance = axios.create({
   API.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error) => {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
+      if (axios.isAxiosError(error) && error.response?.status === 401 || error.response?.status === 403) {
         console.error('Unauthorized access - redirecting to login');
         localStorage.removeItem('token');
         window.location.href = '/login';
@@ -44,8 +44,8 @@ const API: AxiosInstance = axios.create({
 
   export const get = async <T = unknown>(url: string): Promise<T> => {
     try {
-      const response = await API.get<ApiResponse<T>>(url);
-      return response.data.data;  
+      const response = await API.get<T>(url); 
+      return response.data;  
     } catch (error) {
       console.error('GET request failed:', error);
       throw error;
@@ -58,6 +58,20 @@ const API: AxiosInstance = axios.create({
   ): Promise<ApiResponse<T>> => {
     try {
       const response = await API.post<ApiResponse<T>>(url, data);
+      console.log('Response:', JSON.stringify(response.data, null, 2));
+      return response.data;
+    } catch (error) {
+      console.error('POST request failed:', error);
+      throw error;
+    }
+  };
+
+  export const postData = async <T = unknown>(
+    url: string,
+    data: unknown
+  ): Promise<T> => {
+    try {
+      const response = await API.post<T>(url, data);
       console.log('Response:', JSON.stringify(response.data, null, 2));
       return response.data;
     } catch (error) {

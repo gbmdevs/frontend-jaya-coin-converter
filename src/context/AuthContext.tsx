@@ -36,6 +36,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
     const login = async (email: string, password: string) => { 
         try{
+          console.log("entrou no context login")
         const response = await post<LoginResponse>("/auth/login", {
             email,
             password,
