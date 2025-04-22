@@ -23,10 +23,14 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm install serve -g
 
       - name: Build application
         run: npm run build
+        env:
+          CI: false
 
       - name: Create static.json
         run: |
@@ -41,32 +45,33 @@ jobs:
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
-          heroku --version
-
-      - name: Create Heroku app if it doesn't exist
-        run: |
-          if ! heroku apps:info -a frontend-jaya-coin-converter &> /dev/null; then
-            heroku create frontend-jaya-coin-converter
-          fi
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-      - name: Add Heroku buildpacks
-        run: |
-          heroku buildpacks:clear -a frontend-jaya-coin-converter
-          heroku buildpacks:set heroku/nodejs -a frontend-jaya-coin-converter
-          heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-jaya-coin-converter
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
+          
       - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.12.14
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "frontend-jaya-coin-converter"
-          heroku_email: "guih.smi2@gmail.com" 
-          branch: "develop"
-          usedocker: false
-          appdir: ""   
-          dontuseforce: false
-          useforce: true
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_DEBUG: 1
+        run: |
+          echo "Logging in to Heroku..."
+          export HEROKU_API_KEY="$HEROKU_API_KEY"
+          echo "HEROKU_API_KEY is set to: ${HEROKU_API_KEY:0:10}..."
+          
+          echo "Clearing existing buildpacks..."
+          heroku buildpacks:clear -a frontend-java-coin-converter || true
+          
+          echo "Adding Node.js buildpack..."
+          heroku buildpacks:add heroku/nodejs -a frontend-java-coin-converter
+          
+          echo "Adding static buildpack..."
+          heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-java-coin-converter
+          
+          echo "Creating tar archive of dist folder..."
+          tar -czf dist.tar.gz dist static.json Procfile package.json
+          
+          echo "Deploying to Heroku app: frontend-java-coin-converter"
+          heroku builds:create -a frontend-java-coin-converter --source-tar dist.tar.gz
+          
+          echo "Ensuring dynos are running..."
+          heroku ps:scale web=1 -a frontend-java-coin-converter
+          
+          echo "Deployment complete! You can view your app at:"
+          heroku open -a frontend-java-coin-converter
