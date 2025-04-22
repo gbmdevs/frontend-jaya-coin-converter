@@ -51,7 +51,7 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.12.14
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "frontend-java-coin-converter"
+          heroku_app_name: "frontend-jaya-coin-converter"
           heroku_email: "guih.smi2@gmail.com"
           appdir: "dist"
         env:
