@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -52,7 +54,9 @@ jobs:
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: "frontend-jaya-coin-converter"
-          heroku_email: "guih.smi2@gmail.com"
-          appdir: "dist"
-        env:
-          HD_APP_BASE: "dist"
+          heroku_email: "guih.smi2@gmail.com" 
+          branch: "main"
+          usedocker: false
+          appdir: ""  
+          justlogin: false
+          dontautocreate: true   
