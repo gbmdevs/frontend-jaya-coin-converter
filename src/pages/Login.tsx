@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogIn } from 'lucide-react';
 import toast from 'react-hot-toast';
+import {handleApiError} from '../utils/api';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -16,8 +17,8 @@ const Login = () => {
         await login(email,password);           
         toast.success('Successfully logged in!');
         navigate("/converter")
-        }catch(error){
-          toast.error('Login error');
+        }catch(error: unknown ){ 
+          toast.error(handleApiError(error))
         } 
       };
 
