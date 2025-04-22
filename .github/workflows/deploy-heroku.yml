@@ -65,7 +65,7 @@ jobs:
           heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-jaya-coin-converter
           
           echo "Creating tar archive of dist folder..."
-          tar -czf dist.tar.gz dist static.json Procfile package.json
+          tar -czf dist.tar.gz dist static.json package.json
           
           echo "Deploying to Heroku app: frontend-jaya-coin-converter"
           heroku builds:create -a frontend-jaya-coin-converter --source-tar dist.tar.gz
