@@ -103,3 +103,4 @@ jobs:
           heroku_email: "github-actions@users.noreply.github.com"
           appdir: .
           usedocker: false
+          dontuseforce: true
