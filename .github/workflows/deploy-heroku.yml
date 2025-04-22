@@ -58,4 +58,5 @@ jobs:
           branch: "develop"
           usedocker: false
           appdir: ""   
-          dontautocreate: true   
+          dontuseforce: false
+          useforce: true
