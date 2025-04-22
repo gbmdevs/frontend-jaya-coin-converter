@@ -49,7 +49,7 @@ jobs:
           path: dist/
           retention-days: 1
 
-  deploy:
+deploy:
     runs-on: ubuntu-latest
     needs: build
     environment: production
@@ -71,7 +71,7 @@ jobs:
           curl https://cli-assets.heroku.com/install.sh | sh
           heroku --version
 
-      - name: Deploy to Heroku
+      - name: Configure Heroku Buildpacks
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_DEBUG: 1
@@ -87,22 +87,12 @@ jobs:
           echo "Setting heroku/nodejs buildpack..."
           heroku buildpacks:add heroku/nodejs -a $HEROKU_APP_NAME
 
-          echo "Deploying to Heroku app: $HEROKU_APP_NAME"
- 
-          mkdir -p heroku-deploy
-          cd heroku-deploy
- 
-          git init
-          git config user.email "github-actions@users.noreply.github.com"
-          git config user.name "GitHub Actions"
- 
-          cp -r ../* .
-          cp -r ../.gitignore . || echo "No .gitignore found"
- 
-          cp -r ../dist/* dist/ || echo "dist folder already copied"
- 
-          git add .
-          git commit -m "Deploy built assets"
- 
-          git remote add heroku https://git.heroku.com/${HEROKU_APP_NAME}.git
-          git push heroku main --force
+      - name: Deploy to Heroku
+        uses: AkhileshNS/heroku-deploy@v3.13.15
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: frontend-jaya-coin-converter
+          heroku_email: "github-actions@users.noreply.github.com"
+          appdir: .
+          usedocker: false
+          dontusecache: true
