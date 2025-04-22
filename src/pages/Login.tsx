@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogIn } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -10,9 +11,14 @@ const Login = () => {
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => { 
+      try{
         e.preventDefault(); 
-        login(email,password);
+        await login(email,password);           
+        toast.success('Successfully logged in!');
         navigate("/converter")
+        }catch(error){
+          toast.error('Login error');
+        } 
       };
 
     return (

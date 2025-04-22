@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError,AxiosResponse } from 'axios';
+import toast from 'react-hot-toast';
 
 interface ApiResponse<T = unknown> { 
   status: number;
@@ -8,7 +9,7 @@ interface ApiResponse<T = unknown> {
 }
 
 const API: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL_BACK_END || 'http://localhost:3000', // Fallback for dev
+    baseURL: import.meta.env.VITE_API_URL_BACK_END,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -18,19 +19,17 @@ const API: AxiosInstance = axios.create({
   API.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error) => {
-      if (axios.isAxiosError(error) && error.response?.status === 401 || error.response?.status === 403) {
+      if (axios.isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 403)) {
         console.error('Unauthorized access - redirecting to login');
         localStorage.removeItem('token');
-        window.location.href = '/login';
-      }
+        toast.error(error.message) 
+      }  
       return Promise.reject(error);
     }
   );
 
   API.interceptors.request.use(
-    (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-      // Add custom headers or token if needed
-      // Example: Add Authorization header
+    (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => { 
       const token = localStorage.getItem('token');
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;

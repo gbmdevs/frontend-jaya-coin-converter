@@ -31,7 +31,8 @@ const currencies: Currency[] = [
 
 interface ConversionSearch {
   transcationId: string; 
-  valueOrigin: number 
+  valueOrigin: number;
+  valueDestiny: number;
 }
 
 const CurrencySelect: React.FC<{
@@ -92,7 +93,7 @@ const CurrencyConverter = () => {
   const [loading, setLoading] = useState(false); 
   const [currencyTypes, setCurrencyTypes] = useState<CurrencyType[]>([]);
   const [currentConversion,setCurrentConversion] = useState<ConversionSearch>();
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -115,32 +116,11 @@ const CurrencyConverter = () => {
     
       const conversion: ConversionSearch = {
         transcationId: convertResponse.transcationId,
-        valueOrigin: convertResponse.valueOrigin
+        valueOrigin: convertResponse.valueOrigin,
+        valueDestiny: convertResponse.valueDestiny
       }
 
-      setCurrentConversion(conversion)
-      /*
-      
-      const response = await fetch(
-        `https://api.exchangerate-api.com/v4/latest/${fromCurrency}`
-      );
-      const data = await response.json();
-      const rate = data.rates[toCurrency];
-      const convertedResult = parseFloat(amount) * rate;
-      setResult(convertedResult);
-
-      const history: ConversionHistory = {
-        id: Math.random().toString(36).substr(2, 9),
-        userId: user?.email || 'anonymous',
-        fromCurrency,
-        toCurrency,
-        amount,
-        result: convertedResult,
-        timestamp: new Date(),
-      };
-
-      const existingHistory = JSON.parse(localStorage.getItem('conversionHistory') || '[]');
-      localStorage.setItem('conversionHistory', JSON.stringify([history, ...existingHistory]));*/
+      setCurrentConversion(conversion) 
     } catch (error) {
       console.error('Error fetching exchange rate:', error);
     }
@@ -180,8 +160,7 @@ const CurrencyConverter = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-500 to-blue-600 p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          {user?.isAdmin && (
+        <div className="flex justify-between items-center mb-8">          
             <button
               onClick={() => navigate('/admin')}
               className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20 transition duration-200"
@@ -189,7 +168,6 @@ const CurrencyConverter = () => {
               <ShieldCheck className="h-5 w-5" />
               Admin Dashboard
             </button>
-          )}
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20 transition duration-200"
@@ -252,12 +230,12 @@ const CurrencyConverter = () => {
                     <RefreshCw className="h-16 w-16 animate-spin text-green-500 mx-auto" />
                   ) : (
                     <span>
-                       {getSymbol(toCurrency)}
+                       {getSymbol(toCurrency)} {currentConversion?.valueDestiny.toFixed(2)}
                     </span>
                   )}
                 </div>
                 <p className="text-xl text-gray-600">
-                   {getSymbol(fromCurrency)} {currentConversion?.valueOrigin} = {getSymbol(toCurrency)} {toCurrency} 
+                   {getSymbol(fromCurrency)} {currentConversion?.valueOrigin} = {getSymbol(toCurrency)} {currentConversion?.valueDestiny.toFixed(2)} 
                 </p>
               </div>
             </div>
