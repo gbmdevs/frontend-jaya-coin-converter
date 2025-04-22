@@ -65,8 +65,8 @@ jobs:
           heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-jaya-coin-converter
           
           echo "Configuring Git..."
-          git config --global user.email "your-email@example.com"
-          git config --global user.name "Your Name"
+          git config --global user.email "guih.smi2@gmail.com"
+          git config --global user.name "gbmdevs"
           
           echo "Adding Heroku remote..."
           heroku git:remote -a frontend-jaya-coin-converter
