@@ -56,22 +56,22 @@ jobs:
           echo "HEROKU_API_KEY is set to: ${HEROKU_API_KEY:0:10}..."
           
           echo "Clearing existing buildpacks..."
-          heroku buildpacks:clear -a frontend-java-coin-converter || true
+          heroku buildpacks:clear -a frontend-jaya-coin-converter || true
           
           echo "Adding Node.js buildpack..."
-          heroku buildpacks:add heroku/nodejs -a frontend-java-coin-converter
+          heroku buildpacks:add heroku/nodejs -a frontend-jaya-coin-converter
           
           echo "Adding static buildpack..."
-          heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-java-coin-converter
+          heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-jaya-coin-converter
           
           echo "Creating tar archive of dist folder..."
           tar -czf dist.tar.gz dist static.json Procfile package.json
           
-          echo "Deploying to Heroku app: frontend-java-coin-converter"
-          heroku builds:create -a frontend-java-coin-converter --source-tar dist.tar.gz
+          echo "Deploying to Heroku app: frontend-jaya-coin-converter"
+          heroku builds:create -a frontend-jaya-coin-converter --source-tar dist.tar.gz
           
           echo "Ensuring dynos are running..."
-          heroku ps:scale web=1 -a frontend-java-coin-converter
+          heroku ps:scale web=1 -a frontend-jaya-coin-converter
           
           echo "Deployment complete! You can view your app at:"
-          heroku open -a frontend-java-coin-converter
+          heroku open -a frontend-jaya-coin-converter
