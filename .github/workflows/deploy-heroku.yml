@@ -100,7 +100,6 @@ jobs:
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: frontend-jaya-coin-converter
-          heroku_email: "github-actions@users.noreply.github.com"
-          appdir: .
-          usedocker: false
-          dontuseforce: true
+          heroku_email: "guih.smi2@gmail.com"
+          appdir: "dist"
+          usedocker: false 
