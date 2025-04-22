@@ -64,11 +64,22 @@ jobs:
           echo "Adding static buildpack..."
           heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-jaya-coin-converter
           
-          echo "Creating tar archive of dist folder..."
-          tar -czf dist.tar.gz dist static.json package.json
+          echo "Configuring Git..."
+          git config --global user.email "your-email@example.com"
+          git config --global user.name "Your Name"
           
-          echo "Deploying to Heroku app: frontend-jaya-coin-converter"
-          heroku builds:create -a frontend-jaya-coin-converter --source-tar dist.tar.gz
+          echo "Adding Heroku remote..."
+          heroku git:remote -a frontend-jaya-coin-converter
+          
+          echo "Creating and switching to temporary branch..."
+          git checkout -b deploy-branch
+          
+          echo "Adding built files..."
+          git add dist/ static.json Procfile package.json package-lock.json -f
+          git commit -m "Deploy to Heroku"
+          
+          echo "Deploying to Heroku..."
+          git push heroku deploy-branch:main --force
           
           echo "Ensuring dynos are running..."
           heroku ps:scale web=1 -a frontend-jaya-coin-converter
