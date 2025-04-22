@@ -33,17 +33,17 @@ jobs:
 
       - name: Create Heroku app if it doesn't exist
         run: |
-          if ! heroku apps:info -a frontend-java-coin-converter &> /dev/null; then
-            heroku create frontend-java-coin-converter
+          if ! heroku apps:info -a frontend-jaya-coin-converter &> /dev/null; then
+            heroku create frontend-jaya-coin-converter
           fi
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
       - name: Add Heroku buildpacks
         run: |
-          heroku buildpacks:clear -a frontend-java-coin-converter
-          heroku buildpacks:set heroku/nodejs -a frontend-java-coin-converter
-          heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-java-coin-converter
+          heroku buildpacks:clear -a frontend-jaya-coin-converter
+          heroku buildpacks:set heroku/nodejs -a frontend-jaya-coin-converter
+          heroku buildpacks:add https://github.com/heroku/heroku-buildpack-static.git -a frontend-jaya-coin-converter
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
