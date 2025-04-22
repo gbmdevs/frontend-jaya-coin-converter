@@ -2,15 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { get } from '../utils/api';
+import toast from 'react-hot-toast';
 
 interface ConversionHistory {
   id: string;
   userId: string;
-  fromCurrency: string;
-  toCurrency: string;
-  amount: string;
-  result: number;
-  timestamp: Date;
+  currencyOrigin: string;
+  valueOrigin: number;
+  currencyDestiny: string;
+  valueDestiny: number;
+  taxConversion: number;
+  dateOperation: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -23,12 +26,18 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedHistory = JSON.parse(localStorage.getItem('conversionHistory') || '[]');
-    setHistory(storedHistory.map((item: any) => ({
-      ...item,
-      timestamp: new Date(item.timestamp)
-    })));
+    findAllHistoricMoviment() 
   }, []);
+
+  const findAllHistoricMoviment = async () =>{
+      try{
+        const response = await get<ConversionHistory[]>('/currency/historic') 
+        console.log(response)
+        setHistory(response)
+      }catch(error){
+        toast.error("Failed to load historic moviment.")
+      } 
+  }
 
   const handleLogout = () => {
     logout();
@@ -36,9 +45,7 @@ const AdminDashboard = () => {
   };
 
   const filteredHistory = history.filter(item =>
-    item.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.fromCurrency.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.toCurrency.toLowerCase().includes(searchTerm.toLowerCase())
+    item.userId.toLowerCase().includes(searchTerm.toLowerCase())  
   );
 
   const totalPages = Math.ceil(filteredHistory.length / ITEMS_PER_PAGE);
@@ -54,19 +61,19 @@ const AdminDashboard = () => {
             className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20 transition duration-200"
           >
             <ChevronLeft className="h-5 w-5" />
-            Back to Converter
+            Tela de Conversão
           </button>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20 transition duration-200"
           >
             <LogOut className="h-5 w-5" />
-            Logout
+            Desconectar
           </button>
         </div>
 
         <div className="bg-white rounded-xl shadow-2xl p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">Conversion History</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">Histórico de Conversão</h1>
 
           <div className="mb-6 relative">
             <input
@@ -83,25 +90,33 @@ const AdminDashboard = () => {
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transação ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario ID</th> 
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moeda Origem</th> 
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Origem</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moeda Destino</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Destino</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxa Conversão</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Operação</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedHistory.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.userId}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.fromCurrency}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.toCurrency}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.amount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.result.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.userId}</td> 
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">              
+                      {<img  src={`/assets/flags/${item.currencyOrigin}.png`}
+                             alt={item.currencyOrigin}
+                             className="w-6 h-4 object-cover" />}{item.currencyOrigin}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.valueOrigin.toFixed(2)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(item.timestamp).toLocaleString()}
-                    </td>
+                    {<img  src={`/assets/flags/${item.currencyDestiny}.png`}
+                             alt={item.currencyDestiny}
+                             className="w-6 h-4 object-cover" />}{item.currencyDestiny}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.valueDestiny.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.taxConversion}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(item.dateOperation).toLocaleString()}</td>                     
                   </tr>
                 ))}
               </tbody>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import {handleApiError} from '../utils/api';
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -23,7 +24,7 @@ const Signup = () => {
       navigate('/converter');
     } catch (error) {
       console.log(error)
-      toast.error('Failed to create account');
+      toast.error(handleApiError(error));
     }
   };
 
@@ -80,10 +81,7 @@ const Signup = () => {
           <Link to="/login" className="text-purple-500 hover:text-purple-600 font-semibold">
             Acesse
           </Link>
-        </p>
-        <div className="mt-8 text-center text-sm text-gray-500">
-          Version {import.meta.env.VITE_APP_VERSION || '1.0.0'} ({new Date().toLocaleDateString()})
-        </div>
+        </p> 
       </div>
     </div>
   );

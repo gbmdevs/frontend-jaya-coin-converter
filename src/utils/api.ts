@@ -8,6 +8,10 @@ interface ApiResponse<T = unknown> {
   data: T
 }
 
+interface ErrorResponse {
+  message: string;
+}
+
 const API: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_URL_BACK_END,
     headers: {
@@ -19,7 +23,7 @@ const API: AxiosInstance = axios.create({
   API.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error) => {
-      if (axios.isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 403)) {
+      if (axios.isAxiosError(error) && (error.response?.status === 401)) {
         console.error('Unauthorized access - redirecting to login');
         localStorage.removeItem('token');
         toast.error(error.message) 
@@ -63,6 +67,21 @@ const API: AxiosInstance = axios.create({
       console.error('POST request failed:', error);
       throw error;
     }
+  };
+
+  export const handleApiError = (error: unknown): string => {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      return axiosError.response?.data?.message || 
+             axiosError.message || 
+             'An error occurred while processing your request';
+    }
+    
+    if (error instanceof Error) {
+      return error.message;
+    }
+    
+    return 'An unexpected error occurred';
   };
 
   export const postData = async <T = unknown>(

@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem("token", response.token);
         setIsAuthenticated(true)
         }catch(error){
-            console.log(error)
+            throw error
         }
     };
 
@@ -52,10 +52,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         password: password,
         name: name
       })
-      console.log(response)
+      localStorage.setItem("token",response.token)
       setIsAuthenticated(true)
     }catch(error){
-
+      throw error
     }
   };
 

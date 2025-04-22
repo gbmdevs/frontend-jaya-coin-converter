@@ -58,7 +58,7 @@ const CurrencySelect: React.FC<{
           backgroundSize: '24px'
         }}
       >
-        {selectedCurrency?.currency} -  {selectedCurrency?.symbol} 
+        {selectedCurrency?.currency} - {selectedCurrency?.symbol} 
       </button>
       {isOpen && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
@@ -166,14 +166,14 @@ const CurrencyConverter = () => {
               className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20 transition duration-200"
             >
               <ShieldCheck className="h-5 w-5" />
-              Admin Dashboard
+              Histórico
             </button>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20 transition duration-200"
           >
             <LogOut className="h-5 w-5" />
-            Logout
+            Desconectar
           </button>
         </div>
         <div className="bg-white rounded-xl shadow-2xl p-8">
@@ -183,7 +183,7 @@ const CurrencyConverter = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Quantidade</label>
                 <div className="relative">
                   <span className="absolute left-4 top-3 text-gray-500">
                     {getSymbol(fromCurrency)}
@@ -201,13 +201,13 @@ const CurrencyConverter = () => {
               <CurrencySelect
                 value={fromCurrency}
                 onChange={setFromCurrency}
-                label="From"
+                label="Origem"
                 currencyTypes={currencyTypes}
               />
               <CurrencySelect
                 value={toCurrency}
                 onChange={setToCurrency}
-                label="To"
+                label="Destino"
                 currencyTypes={currencyTypes}
               />
               <button
