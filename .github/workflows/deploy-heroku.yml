@@ -27,10 +27,11 @@ jobs:
         run: npm run build
 
       - name: Deploy to Heroku
-        uses: heroku/heroku-deploy@v2.0.0
+        uses: akhileshns/heroku-deploy@v3.12.14 # Changed back to akhileshns/heroku-deploy
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: "frontend-java-coin-converter"
           heroku_email: "guih.smi2@gmail.com"
-          branch: "develop"
           appdir: "dist"
+        env:
+          HD_APP_BASE: "dist"
