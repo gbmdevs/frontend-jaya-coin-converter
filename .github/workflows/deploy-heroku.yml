@@ -28,6 +28,16 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Create static.json
+        run: |
+          echo '{
+            "root": "dist",
+            "clean_urls": true,
+            "routes": {
+              "/**": "index.html"
+            }
+          }' > static.json
+
       - name: Install Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh | sh
